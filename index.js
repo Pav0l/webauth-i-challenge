@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const helmet = require('helmet');
 const bcrypt = require( 'bcrypt');
@@ -11,7 +12,7 @@ const app = express();
 // create session config file to config
 const sessionConfig = {
   name: 'user_session',
-  secret: 'process.env.SESSION_SECRET', // dont store the secret in your code, save it in an .env file
+  secret: process.env.SESSION_SECRET, // dont store the secret in your code, save it in an .env file
   cookie: {
     maxAge: 1000 * 60 * 60, // in miliseconds - how long it takes for this cookie to expire
     secure: false, // needs to be true in PRODUCTION!. only do any of this over HTTPS!!!  In testing/dev it can be false, because you're not using HTTPS
@@ -109,9 +110,13 @@ LOG OUT USER
 @dev - [GET] - req will destroy the session
 @dev - returns a message
 */
-app.get('/api/logout', (req, res) => {
-  req.session.destroy();
-  res.json(`User was logged out`);
+app.get('/api/logout', async (req, res) => {
+  try {
+    req.session.destroy();
+    res.json(`User was logged out`);
+  } catch (error) {
+    next(error);
+  }
 });
 
 /*
@@ -131,7 +136,7 @@ app.get('/api/restricted/users', async (req, res, next) => {
 
 app.use(serverError);
 
-const PORT = 4000;
+const PORT = process.env.PORT || 3333;
 app.listen(PORT, () => {
   console.log(`Express app listening at http://127.0.0.1:${PORT}`);
 });
